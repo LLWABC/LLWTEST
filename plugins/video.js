@@ -22,8 +22,8 @@ cmd({
     const videoUrl = videoData.url;
 
     // Using denethdev-ytmp3 to fetch the download link
-    let down = await ytmp4.download(videoUrl) // Download in mp3 format
-    let downloadLink = down.dl_url // Get the download URL
+    const result = await ytmp4.download(videoUrl, 'mp4'); // Download in mp3 format
+    const downloadLink = result.downloadUrl; // Get the download URL
 
     let videoDetailsMessage = `〽️ *LLW MD V1 VIDEO DOWNLOADER* 〽️\n\n`;
     videoDetailsMessage += `*📊 TITLE:* ${videoData.title}\n`;
