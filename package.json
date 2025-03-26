@@ -27,7 +27,8 @@
     "api-dylux":"1.8.5",
     "mongoose":"8.12.2",
     "denethdev-ytmp3":"1.0.3",
-    "ytmp4":"1.0.2"
+    "ytmp4":"1.0.2",
+    "ytdl-core":"4.11.5"
 
   }
 }
