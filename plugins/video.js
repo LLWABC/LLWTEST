@@ -1,6 +1,6 @@
 const { cmd, commands } = require('../command');
 const yts = require('yt-search');
-const fg = require('api-dylux'); // Importing the denethdev-ytmp3 package for downloading
+const ddownr = require('denethdev-ytmp3'); // Importing the denethdev-ytmp3 package for downloading
 
 cmd({
   pattern: "video",
