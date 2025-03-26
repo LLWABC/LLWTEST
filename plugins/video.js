@@ -1,6 +1,6 @@
 const { cmd, commands } = require('../command');
 const yts = require('yt-search');
-const fg = require('api-dylux'); // Importing the denethdev-ytmp3 package for downloading
+const ytmp4 = require('ytmp4'); // Importing the denethdev-ytmp3 package for downloading
 
 cmd({
   pattern: "video",
@@ -22,7 +22,7 @@ cmd({
     const videoUrl = videoData.url;
 
     // Using denethdev-ytmp3 to fetch the download link
-    let down = await fg.ytv(videoUrl) // Download in mp3 format
+    let down = await ytmp4.download(videoUrl) // Download in mp3 format
     let downloadLink = down.dl_url // Get the download URL
 
     let videoDetailsMessage = `〽️ *LLW MD V1 VIDEO DOWNLOADER* 〽️\n\n`;
