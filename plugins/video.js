@@ -1,6 +1,6 @@
 const { cmd, commands } = require('../command');
 const yts = require('yt-search');
-const fg  = require('api-dylux'); // Corrected import
+const fg = require('api-dylux'); // Corrected import
 
 cmd({
   pattern: "video",
