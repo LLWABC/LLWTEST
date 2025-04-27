@@ -3,6 +3,10 @@ const { cmd, commands } = require('../command');
 const os = require("os");
 const { runtime } = require('../lib/functions');
 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 cmd({
     pattern: "ping",
     alias: ["status", "botinfo"],
@@ -13,18 +17,18 @@ cmd({
 },
 async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
     try {
-        const start = new Date().getTime();
         await reply('Pinging llw md...');
+        await delay(100); // Introduce a 100ms delay
+        const start = new Date().getTime();
         const end = new Date().getTime();
         const speed = Math.round(end - start);
 
-        let status = ` *PONG🏓....
+        let status = ` *PONG*🏓...
 
- *Speed:* ${speed} ms
+*LLW MD Speed:* ${speed} ms
 
 
- > LLW MD V1💫
-
+> *LLW MD V1 BY LLW* 💫
 `;
         return reply(`${status}`);
 
