@@ -1,10 +1,10 @@
 const { cmd, commands } = require('../command');
 const yts = require('yt-search');
-const ytdl = require('ytdl-core');
+const { youtube } = require('api-dylux');
 
 cmd({
   pattern: "video",
-  desc: "Download videos.",
+  desc: "Download videos using api-dylux with format selection.",
   category: "download",
   react: '🎥',
   filename: __filename
@@ -12,15 +12,33 @@ cmd({
   try {
     if (!q) return reply("*Please Provide A video title or Url 🙂*");
 
-    const searchResults = await yts(q);
-    if (!searchResults || searchResults.videos.length === 0) {
-      return reply("*No video Found...🙄*");
+    let videoUrl;
+    if (q.startsWith('youtube.com') || q.startsWith('youtu.be') || q.includes('youtube.com') || q.includes('youtu.be')) {
+      videoUrl = q;
+    } else {
+      const searchResults = await yts(q);
+      if (!searchResults || searchResults.videos.length === 0) {
+        return reply("*No video Found...🙄*");
+      }
+      videoUrl = searchResults.videos[0].url;
     }
 
-    const videoData = searchResults.videos[0];
-    const videoUrl = videoData.url;
+    if (!videoUrl) {
+      return reply("*Could not determine video URL... 🚫*");
+    }
 
-    let videoDetailsMessage = `〽️ *LLW MD V1 VIDEO DOWNLOADER* 〽️\n\n`;
+    const { video } = await youtube(videoUrl);
+
+    if (!video || video.length === 0) {
+      return reply("*Could not retrieve video data from api-dylux... 🚫*");
+    }
+
+    const bestVideo = video.sort((a, b) => b.filesize - a.filesize)[0]; // Get the highest quality video URL
+
+    const searchResultsForInfo = await yts({ url: videoUrl });
+    const videoData = searchResultsForInfo.videos[0];
+
+    let videoDetailsMessage = `〽️ *LLW MD V1 VIDEO DOWNLOADER (via dylux)* 〽️\n\n`;
     videoDetailsMessage += `*📊 TITLE:* ${videoData.title}\n`;
     videoDetailsMessage += `*📊 VIEWS:* ${videoData.views}\n`;
     videoDetailsMessage += `*📊 TIME:* ${videoData.timestamp}\n`;
@@ -46,48 +64,30 @@ cmd({
       if (
         message.message.extendedTextMessage.contextInfo?.stanzaId === sentMessage.key.id
       ) {
-        try {
-          const videoStream = ytdl(videoUrl, { quality: 'highestvideo' });
-          videoStream.on('error', (err) => {
-            console.error("ytdl-core error:", err);
-            reply("*Error downloading video... 🚫*");
-          });
-
-          switch (userReply) {
-            case '1': // Video File
-              await messageHandler.sendMessage(
-                from,
-                {
-                  video: videoStream,
-                  mimetype: 'video/mp4',
-                },
-                { quoted: quotedMessage }
-              );
-              break;
-            case '2': // Document File
-              await messageHandler.sendMessage(
-                from,
-                {
-                  document: videoStream,
-                  mimetype: 'video/mp4',
-                  fileName: `${videoData.title}.mp4`,
-                  caption: `${videoData.title}\n\n*LLW MD VIDEO DOWNLOADED* ✅`,
-                },
-                { quoted: quotedMessage }
-              );
-              break;
-            default:
-              reply("*OPTION NOT FOUND... 🚫*");
-              break;
-          }
-        } catch (error) {
-          console.error("Error processing video:", error);
-          reply("*Error processing video URL... 🚫*");
+        switch (userReply) {
+          case '1': // Video File
+            await messageHandler.sendMessage(from, {
+              video: { url: bestVideo.url },
+              mimetype: 'video/mp4'
+            }, { quoted: quotedMessage });
+            break;
+          case '2': // Document File
+            await messageHandler.sendMessage(from, {
+              document: { url: bestVideo.url },
+              mimetype: 'video/mp4',
+              fileName: `${videoData.title}.mp4`,
+              caption: `${videoData.title}\n\n*LLW MD VIDEO DOWNLOADED* ✅`
+            }, { quoted: quotedMessage });
+            break;
+          default:
+            reply("*OPTION NOT FOUND... 🚫*");
+            break;
         }
       }
     });
+
   } catch (error) {
-    console.error(error);
-    reply("*ERROR OCCURED ON LLW MD...🚫*");
+    console.error("api-dylux Error:", error);
+    reply(`*Error using api-dylux: ${error.message} 🚫*`);
   }
 });
