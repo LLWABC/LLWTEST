@@ -1,6 +1,6 @@
 const { cmd, commands } = require('../command');
 const yts = require('yt-search');
-const { youtube } = require('api-dylux');
+const fg  = require('api-dylux'); // Corrected import
 
 cmd({
   pattern: "video",
@@ -27,13 +27,11 @@ cmd({
       return reply("*Could not determine video URL... 🚫*");
     }
 
-    const { video } = await youtube(videoUrl);
+    const result = await fg(videoUrl);
 
-    if (!video || video.length === 0) {
-      return reply("*Could not retrieve video data from api-dylux... 🚫*");
+    if (!result || !result.url) {
+      return reply("*Could not retrieve video download link from api-dylux... 🚫*");
     }
-
-    const bestVideo = video.sort((a, b) => b.filesize - a.filesize)[0]; // Get the highest quality video URL
 
     const searchResultsForInfo = await yts({ url: videoUrl });
     const videoData = searchResultsForInfo.videos[0];
@@ -67,13 +65,13 @@ cmd({
         switch (userReply) {
           case '1': // Video File
             await messageHandler.sendMessage(from, {
-              video: { url: bestVideo.url },
-              mimetype: 'video/mp4'
+              video: { url: result.url },
+              mimetype: 'video/mp4' // Assuming api-dylux provides MP4
             }, { quoted: quotedMessage });
             break;
           case '2': // Document File
             await messageHandler.sendMessage(from, {
-              document: { url: bestVideo.url },
+              document: { url: result.url },
               mimetype: 'video/mp4',
               fileName: `${videoData.title}.mp4`,
               caption: `${videoData.title}\n\n*LLW MD VIDEO DOWNLOADED* ✅`
