@@ -3,6 +3,10 @@ const { cmd, commands } = require('../command');
 const os = require("os");
 const { runtime } = require('../lib/functions');
 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 cmd({
     pattern: "ping",
     alias: ["status", "botinfo"],
@@ -13,8 +17,9 @@ cmd({
 },
 async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
     try {
-        const start = new Date().getTime(); // Record time when the command is received and processing begins
-        const end = new Date().getTime();   // Record time right before sending the reply
+        const start = new Date().getTime(); // Record time when command processing starts
+        await delay(100); // Introduce a 100ms delay
+        const end = new Date().getTime();   // Record time after the delay
         const speed = Math.round(end - start);
 
         let status = ` *PONG*🏓...
