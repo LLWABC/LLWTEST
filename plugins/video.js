@@ -1,7 +1,6 @@
 const { cmd, commands } = require('../command');
 const yts = require('yt-search');
-const fs = require('fs');
-const ytdl = require('ytdl-core'); // Importing the ytdl-core package for downloading
+const ytdl = require('ytdl-core');
 
 cmd({
   pattern: "video",
@@ -13,7 +12,6 @@ cmd({
   try {
     if (!q) return reply("*Please Provide A video title or Url 🙂*");
 
-    // Search for the video using yt-search
     const searchResults = await yts(q);
     if (!searchResults || searchResults.videos.length === 0) {
       return reply("*No video Found...🙄*");
@@ -34,52 +32,57 @@ cmd({
     videoDetailsMessage += `2 || DOCUMENT FORMAT 📂\n\n`;
     videoDetailsMessage += `> *LLW MD V1 BY LLW EDITZ*`;
 
-    // Send the video thumbnail with video details
     const sentMessage = await messageHandler.sendMessage(from, {
       image: { url: videoData.thumbnail },
       caption: videoDetailsMessage,
     }, { quoted: quotedMessage });
 
-    // Listen for the user's reply to select the download format
     messageHandler.ev.on("messages.upsert", async (update) => {
       const message = update.messages[0];
-      if (!message.message || !message.message.extendedTextMessage) return;
+      if (!message.message?.extendedTextMessage?.text) return;
 
       const userReply = message.message.extendedTextMessage.text.trim();
 
-      // Handle the download format choice
       if (
-        message.message.extendedTextMessage.contextInfo &&
-        message.message.extendedTextMessage.contextInfo.stanzaId === sentMessage.key.id
+        message.message.extendedTextMessage.contextInfo?.stanzaId === sentMessage.key.id
       ) {
-        const videoStream = ytdl(videoUrl, { quality: 'highestvideo' }); // Get the video stream
+        try {
+          const videoStream = ytdl(videoUrl, { quality: 'highestvideo' });
+          videoStream.on('error', (err) => {
+            console.error("ytdl-core error:", err);
+            reply("*Error downloading video... 🚫*");
+          });
 
-        switch (userReply) {
-          case '1': // Video File
-            await messageHandler.sendMessage(
-              from,
-              {
-                video: videoStream,
-                mimetype: 'video/mp4',
-              },
-              { quoted: quotedMessage }
-            );
-            break;
-          case '2': // Document File
-            await messageHandler.sendMessage(
-              from,
-              {
-                document: videoStream,
-                mimetype: 'video/mp4',
-                fileName: `${videoData.title}.mp4`,
-                caption: `${videoData.title}\n\n*LLW MD VIDEO DOWNLOADED* ✅`,
-              },
-              { quoted: quotedMessage }
-            );
-            break;
-          default:
-            reply("*OPTION NOT FOUND... 🚫*");
-            break;
+          switch (userReply) {
+            case '1': // Video File
+              await messageHandler.sendMessage(
+                from,
+                {
+                  video: videoStream,
+                  mimetype: 'video/mp4',
+                },
+                { quoted: quotedMessage }
+              );
+              break;
+            case '2': // Document File
+              await messageHandler.sendMessage(
+                from,
+                {
+                  document: videoStream,
+                  mimetype: 'video/mp4',
+                  fileName: `${videoData.title}.mp4`,
+                  caption: `${videoData.title}\n\n*LLW MD VIDEO DOWNLOADED* ✅`,
+                },
+                { quoted: quotedMessage }
+              );
+              break;
+            default:
+              reply("*OPTION NOT FOUND... 🚫*");
+              break;
+          }
+        } catch (error) {
+          console.error("Error processing video:", error);
+          reply("*Error processing video URL... 🚫*");
         }
       }
     });
