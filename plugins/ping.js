@@ -3,10 +3,6 @@ const { cmd, commands } = require('../command');
 const os = require("os");
 const { runtime } = require('../lib/functions');
 
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 cmd({
     pattern: "ping",
     alias: ["status", "botinfo"],
@@ -17,14 +13,26 @@ cmd({
 },
 async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
     try {
-        const start = new Date().getTime(); // Record time when command processing starts
-        await delay(100); // Introduce a 100ms delay
-        const end = new Date().getTime();   // Record time after the delay
+        const start = new Date().getTime();
+        const end = new Date().getTime();
         const speed = Math.round(end - start);
+
+        let speedText;
+        if (speed <= 10) {
+            speedText = 'LLW MD IS LIGHTNING FAST⚡';
+        } else if (speed <= 50) {
+            speedText = 'LLW MD IS FAST👍';
+        } else if (speed <= 100) {
+            speedText = 'LLW MD IS AVERAGE SPEED🏓';
+        } else if (speed <= 500) {
+            speedText = 'LLW IS GETTING SLOWER😔';
+        } else {
+            speedText = 'GO GET ANOTHER PHONE💀';
+        }
 
         let status = ` *PONG*🏓...
 
-*LLW MD Speed:* ${speed} ms
+*LLW MD Speed:* ${speed} ms (${speedText})
 
 
 > *LLW MD V1 BY LLW* 💫
