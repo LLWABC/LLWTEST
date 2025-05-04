@@ -14,24 +14,22 @@ async (conn, mek, m, { text, prefix, reply }) => {
     }
 
     try {
+        let sentMessageKey = null;
+
         for (let i = 1; i <= text.length; i++) {
             const currentText = text.substring(0, i);
             if (i === 1) {
-                // Send the first letter
                 const sentMessage = await conn.sendMessage(m.chat, { text: currentText });
-                // Store the message key to edit later
-                m.messageStubType = undefined; // Reset stub type to allow editing
-                m.messageStubParameters = undefined;
-                m.key.id = sentMessage.key.id;
-                m.key.fromMe = true; // Set as sent by the bot
-                await sleep(500); // Adjust delay as needed
+                sentMessageKey = sentMessage.key;
+                await sleep(500);
             } else {
-                // Edit the previously sent message
-                await conn.sendMessage(m.chat, {
-                    text: currentText,
-                    edit: m.key
-                });
-                await sleep(500); // Adjust delay as needed
+                if (sentMessageKey) {
+                    await conn.sendMessage(m.chat, {
+                        text: currentText,
+                        edit: sentMessageKey
+                    });
+                    await sleep(500);
+                }
             }
         }
     } catch (e) {
