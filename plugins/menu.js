@@ -4,7 +4,7 @@ const {cmd , commands} = require('../command')
 cmd({
     pattern: "menu",
     desc: "get cmd list",
-    react: '📋',
+    react: '📂',
     category: "main",
     filename: __filename
 },
@@ -16,6 +16,7 @@ main: '',
 download: '',
 ai:'',
 owner: '',
+fun:'',
 };
 
 for (let i = 0; i < commands.length; i++) {
@@ -61,9 +62,13 @@ let madeMenu = `⚡ *ආ ${pushname} පැටියෝ..කොහොමද..* �
 
 ${menu.owner}
 
-〽️ *AI MENU* 〽️
+🤖 *AI MENU* 🤖
 
 ${menu.ai}
+
+🏓 *FUN MENU* 🏓
+
+${menu.fun}
 
 > *LLW MD V1*
 > *DEVELOPED BY LLW EDITZ* 🗿
